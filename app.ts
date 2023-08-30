@@ -1,7 +1,7 @@
 import AdminJS from 'adminjs'
 import AdminJSExpress from '@adminjs/express'
 import express from 'express'
-import { Role, User } from './models'
+import { Company, Employee, Role, User } from './models'
 import * as AdminJSSequelize from '@adminjs/sequelize'
 import session from 'express-session';
 import { generateResource } from './utils/modelingModels';
@@ -15,7 +15,9 @@ AdminJS.registerAdapter({
   Database: AdminJSSequelize.Database,
 });
 
-const PORT = 3010
+const PORT = 3011
+
+
 const start = async () => {
   const app = express()
   sequelize.sync().then((result) => {
@@ -45,7 +47,9 @@ const start = async () => {
           }
         },
       }),
-      generateResource(Role)
+      generateResource(Role),
+      generateResource(Employee),
+      generateResource(Company)
     ],
     dashboard: {
       component: AdminJS.bundle('./components/dashboard.tsx')
@@ -53,7 +57,7 @@ const start = async () => {
     branding: {
       favicon: "https://cdn-icons-png.flaticon.com/512/5146/5146077.png",
       logo: "https://cdn-icons-png.flaticon.com/512/5146/5146077.png",
-      companyName: "Meu gestor de tarefas"
+      companyName: "Gestor de Funcionários"
     }
   })  
 
@@ -103,4 +107,19 @@ const start = async () => {
   })
 }
 
+/*
+const start = async () => {
+  const app = express()
+
+  const admin = new AdminJS({
+    resources: [Role, User, Employee, Company]
+  })
+
+  const adminRouter = AdminJSExpress.buildRouter(admin)
+  app.use(admin.options.rootPath, adminRouter)
+
+  app.listen(PORT, () => {
+    console.log(`AdminJS started on http://localhost:${PORT}`)
+  })
+}*/
 start()

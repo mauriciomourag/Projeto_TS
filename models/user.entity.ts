@@ -30,30 +30,30 @@ User.init(
             primaryKey: true
         },
         name: {
-            type: new DataTypes.STRING(128),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         email: {
-            type: new DataTypes.STRING(128),
+            type: DataTypes.STRING(128),
             allowNull: false,
             unique: true
         },
         username: {
-            type: new DataTypes.STRING(30),
+            type: DataTypes.STRING(30),
             allowNull: false,
             unique: true
         },
         password: {
-            type: new DataTypes.STRING(128),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         createdAt: {
-            type: new DataTypes.DATE,
+            type: DataTypes.DATE,
             allowNull: false,
             defaultValue: new Date()
         },
         updatedAt: {
-            type: new DataTypes.DATE,
+            type: DataTypes.DATE,
             allowNull: false,
             defaultValue: new Date()
         }

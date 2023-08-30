@@ -12,18 +12,7 @@ module.exports = {
           type: Sequelize.STRING(40),
           allowNull: false,
       },
-      company:{
-          type: Sequelize.STRING(90),
-          allowNull:false,
-      },
-      userId: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-              model: 'users',
-              key: 'id'
-          }
-      },
+      
       createdAt: {
           type: Sequelize.DATE,
           allowNull: false,
