@@ -9,6 +9,8 @@ import { encryptPassword } from './utils/userUtils';
 import { sequelize } from './db';
 require('dotenv').config();
 const mysqlStore = require('express-mysql-session')(session);
+import bcrypt from "bcrypt";
+import locale from './locales'
 
 AdminJS.registerAdapter({
   Resource: AdminJSSequelize.Resource,
@@ -16,7 +18,6 @@ AdminJS.registerAdapter({
 });
 
 const PORT = 3011
-
 
 const start = async () => {
   const app = express()
@@ -58,7 +59,8 @@ const start = async () => {
       favicon: "https://cdn-icons-png.flaticon.com/512/5146/5146077.png",
       logo: "https://cdn-icons-png.flaticon.com/512/5146/5146077.png",
       companyName: "Gestor de Funcionários"
-    }
+    },
+    ...locale,
   })  
 
   const sessionStore = new mysqlStore({
@@ -76,11 +78,14 @@ const start = async () => {
   const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
     admin,
     {
-      authenticate: async (email: string) => {
+      authenticate: async (email: string, password: string) => {
         const user = await User.findOne({ where: { email } });
-
         if (user) {
-          return user;
+          const verifica = await bcrypt.compare(password, user.getDataValue('password'));
+          if(verifica){
+            return user;
+          }
+          return false;
         }
         return false;
       },
