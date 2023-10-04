@@ -3,6 +3,7 @@ import AdminJSExpress from '@adminjs/express'
 import express from 'express'
 import { Company, Employee, Role, User } from './models'
 import * as AdminJSSequelize from '@adminjs/sequelize'
+import * as AdminJSMongoose from '@adminjs/mongoose'
 import session from 'express-session';
 import { generateResource } from './utils/modelingModels';
 import { encryptPassword } from './utils/userUtils';
@@ -11,10 +12,16 @@ require('dotenv').config();
 const mysqlStore = require('express-mysql-session')(session);
 import bcrypt from "bcrypt";
 import locale from './locales'
+import chat from './routes/chat';
 
 AdminJS.registerAdapter({
   Resource: AdminJSSequelize.Resource,
   Database: AdminJSSequelize.Database,
+});
+
+AdminJS.registerAdapter({
+  Resource: AdminJSMongoose.Resource, 
+  Database: AdminJSMongoose.Database
 });
 
 const PORT = 3011
@@ -105,7 +112,9 @@ const start = async () => {
       name: cookieName
     }
   )
-  app.use(admin.options.rootPath, adminRouter)
+  app.use(admin.options.rootPath, adminRouter);
+
+  app.use('/chat', chat);
 
   app.listen(PORT, () => {
     console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`)
