@@ -1,3 +1,4 @@
+//@ts-nocheck
 import AdminJS from 'adminjs'
 import AdminJSExpress from '@adminjs/express'
 import express from 'express'
@@ -13,6 +14,12 @@ const mysqlStore = require('express-mysql-session')(session);
 import bcrypt from "bcrypt";
 import locale from './locales'
 import chat from './routes/chat';
+import http from 'http';
+import { Server } from "socket.io";
+import { SocketDataChat } from './interfaces/SocketInterface'
+import ChatController from './controllers/ChatController'
+import { Chat } from './models/chat.entity';
+
 
 AdminJS.registerAdapter({
   Resource: AdminJSSequelize.Resource,
@@ -25,9 +32,13 @@ AdminJS.registerAdapter({
 });
 
 const PORT = 3011
+const chatCtrl = new ChatController();
 
 const start = async () => {
   const app = express()
+  const server = http.createServer(app);
+  const io = new Server<SocketDataChat>(server);
+  
   sequelize.sync().then((result) => {
     console.log(result);
   }).catch((err) => {
@@ -57,6 +68,7 @@ const start = async () => {
       }),
       generateResource(Role),
       generateResource(Employee),
+      generateResource(Chat),
       generateResource(Company)
     ],
     dashboard: {
@@ -116,24 +128,24 @@ const start = async () => {
 
   app.use('/chat', chat);
 
-  app.listen(PORT, () => {
+  io.on('connection', (socket) => {
+    console.log("Usuário se conectou.");
+
+    socket.on('SEND_MESSAGE', (data) => {
+      const { message, user_sender, user_receptor } = data;
+      chatCtrl.sendMessage(message, user_sender, user_receptor)
+
+      io.emit('RECEIVE_MESSAGE', data)    
+      })
+
+    socket.on("disconnect", (reason)=>{console.log('Desconectou')} );
+  })
+
+
+
+  server.listen(PORT, () => {
     console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`)
   })
 }
 
-/*
-const start = async () => {
-  const app = express()
-
-  const admin = new AdminJS({
-    resources: [Role, User, Employee, Company]
-  })
-
-  const adminRouter = AdminJSExpress.buildRouter(admin)
-  app.use(admin.options.rootPath, adminRouter)
-
-  app.listen(PORT, () => {
-    console.log(`AdminJS started on http://localhost:${PORT}`)
-  })
-}*/
 start()
