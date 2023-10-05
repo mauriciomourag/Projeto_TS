@@ -1,7 +1,7 @@
-interface SocketDataChat {
+interface SocketDataForm {
     data: (data: object) => object;
 }
 
 export {
-    SocketDataChat
+    SocketDataForm
 }

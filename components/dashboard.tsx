@@ -7,30 +7,47 @@ const socket = io();
 
 const Dashboard = () => {
 
-    const [message, setMessage] = useState('');      
+    const [message, setForm] = useState('');  
+    const [name, setForm2] = useState(''); 
+    const [email, setForm3] = useState('');     
 
       useEffect(() => {
-        socket.on("RECEIVE_MESSAGE",(data)=>{console.log(data)});
+        socket.on("RECEIVE_FORM",(data)=>{console.log(data)});
       }, []);
       
-const sendMessage = async() =>{
-  await socket.emit("SEND_MESSAGE", {
+const sendForm = async() =>{
+  await socket.emit("SEND_FORM", {
     'user_consumer': 1,
     'user_receptor': 2,
+    'cpf':12345678,
+    name,
+    email,
     message});
 
-  setMessage('');
+  setForm('');
+  setForm2('');
+  setForm3('');
 }
 
 return <>
 
 <input 
 value={message}
-onChange={(e)=>setMessage(e.target.value)}
+onChange={(e)=>setForm(e.target.value)}
+/>
+
+<input 
+value={name}
+onChange={(e)=>setForm2(e.target.value)}
+/>
+
+<input 
+value={email}
+onChange={(e)=>setForm3(e.target.value)}
 />
 
 <button onClick={async()=> {
-    await sendMessage();
+    await sendForm();
 }}>Enviar</button>
 
 

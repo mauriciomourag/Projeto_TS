@@ -13,12 +13,11 @@ require('dotenv').config();
 const mysqlStore = require('express-mysql-session')(session);
 import bcrypt from "bcrypt";
 import locale from './locales'
-import chat from './routes/chat';
+import form from './routes/form';
 import http from 'http';
 import { Server } from "socket.io";
-import { SocketDataChat } from './interfaces/SocketInterface'
-import ChatController from './controllers/ChatController'
-import { Chat } from './models/chat.entity';
+import { SocketDataForm } from './interfaces/SocketInterface'
+import FormController from './controllers/FormController'
 
 
 AdminJS.registerAdapter({
@@ -32,12 +31,12 @@ AdminJS.registerAdapter({
 });
 
 const PORT = 3011
-const chatCtrl = new ChatController();
+const formCtrl = new FormController();
 
 const start = async () => {
   const app = express()
   const server = http.createServer(app);
-  const io = new Server<SocketDataChat>(server);
+  const io = new Server<SocketDataForm>(server);
   
   sequelize.sync().then((result) => {
     console.log(result);
@@ -68,7 +67,6 @@ const start = async () => {
       }),
       generateResource(Role),
       generateResource(Employee),
-      generateResource(Chat),
       generateResource(Company)
     ],
     dashboard: {
@@ -126,16 +124,16 @@ const start = async () => {
   )
   app.use(admin.options.rootPath, adminRouter);
 
-  app.use('/chat', chat);
+  app.use('/form', form);
 
   io.on('connection', (socket) => {
     console.log("Usuário se conectou.");
 
-    socket.on('SEND_MESSAGE', (data) => {
-      const { message, user_sender, user_receptor } = data;
-      chatCtrl.sendMessage(message, user_sender, user_receptor)
+    socket.on('SEND_FORM', (data) => {
+      const { message, user_sender, user_receptor, cpf, email, name } = data;
+      formCtrl.sendForm(message, user_sender, user_receptor, cpf, email, name)
 
-      io.emit('RECEIVE_MESSAGE', data)    
+      io.emit('RECEIVE_FORM', data)    
       })
 
     socket.on("disconnect", (reason)=>{console.log('Desconectou')} );
